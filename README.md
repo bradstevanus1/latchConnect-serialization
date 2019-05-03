@@ -1,0 +1,1 @@
+Serialization engine designed for Latch. Copyright Brad Stevanus May 2019
