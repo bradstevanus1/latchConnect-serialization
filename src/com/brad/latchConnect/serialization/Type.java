@@ -6,7 +6,7 @@ public enum Type {
     BYTE    ((byte) 1),
     SHORT   ((byte) 2),
     CHAR    ((byte) 3),
-    INT     ((byte) 4),
+    INTEGER((byte) 4),
     LONG    ((byte) 5),
     FLOAT   ((byte) 6),
     DOUBLE  ((byte) 7),
@@ -25,7 +25,7 @@ public enum Type {
             case BYTE:      return 1;
             case SHORT:     return 2;
             case CHAR:      return 2;
-            case INT:       return 4;
+            case INTEGER:       return 4;
             case LONG:      return 8;
             case FLOAT:     return 4;
             case DOUBLE:    return 8;

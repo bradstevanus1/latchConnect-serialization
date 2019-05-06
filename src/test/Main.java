@@ -40,11 +40,9 @@ public class Main {
 
         Field field = Field.Long("Test", 10);
 
-        byte[] data = new byte[100];
+        byte[] data = new byte[field.getSize()];
         field.getBytes(data, 0);
         printBytes(data);
-
-        // 0x1 0x0 0x4 0x54 0x65 0x73 0x74 0x0 0x0 0x0 0x0 0x8
 
     }
 

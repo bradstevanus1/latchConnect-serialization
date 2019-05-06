@@ -16,6 +16,8 @@ public class Field {
     public byte type;
     public byte[] data;
 
+    private Field() {}
+
     public void setName(String name) {
         assert(name.length() < Short.MAX_VALUE);
         nameLength = (short) name.length();
@@ -67,8 +69,8 @@ public class Field {
     public static Field Integer(String name, int value) {
         Field field = new Field();
         field.setName(name);
-        field.type = Type.INT.getValue();
-        field.data = new byte[Type.INT.getSize()];
+        field.type = Type.INTEGER.getValue();
+        field.data = new byte[Type.INTEGER.getSize()];
         writeBytes(field.data, 0, value);
         return field;
     }

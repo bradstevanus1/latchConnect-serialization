@@ -14,7 +14,7 @@ public class SerializationWriter {
     /**
      * Static RC bytes that go in the header.
      */
-    public static final byte[] HEADER = "RC".getBytes();
+    public static final byte[] HEADER = "LC".getBytes();
 
     /**
      * Version number of the SerializationWriter program.
@@ -23,11 +23,69 @@ public class SerializationWriter {
 
     public static int writeBytes(byte[] dest, int pointer, byte[] src) {
         assert(dest.length > pointer + src.length);
-        for (byte b : src) {
-            dest[pointer++] = b;
+        for (byte value : src) {
+            dest[pointer++] = value;
         }
         return pointer;
     }
+
+    public static int writeBytes(byte[] dest, int pointer, short[] src) {
+        assert(dest.length > pointer + src.length);
+        for (short value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
+    public static int writeBytes(byte[] dest, int pointer, char[] src) {
+        assert(dest.length > pointer + src.length);
+        for (char value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
+
+    public static int writeBytes(byte[] dest, int pointer, int[] src) {
+        assert(dest.length > pointer + src.length);
+        for (int value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
+    public static int writeBytes(byte[] dest, int pointer, long[] src) {
+        assert(dest.length > pointer + src.length);
+        for (long value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
+    public static int writeBytes(byte[] dest, int pointer, float[] src) {
+        assert(dest.length > pointer + src.length);
+        for (float value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
+    public static int writeBytes(byte[] dest, int pointer, double[] src) {
+        assert(dest.length > pointer + src.length);
+        for (double value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
+    public static int writeBytes(byte[] dest, int pointer, boolean[] src) {
+        assert(dest.length > pointer + src.length);
+        for (boolean value : src) {
+            pointer = writeBytes(dest, pointer, value);
+        }
+        return pointer;
+    }
+
 
     /**
      * Writes a byte to an index in a byte array depending directly
@@ -63,7 +121,7 @@ public class SerializationWriter {
 
     @SuppressWarnings("Duplicates")
     public static int writeBytes(byte[] dest, int pointer, int value) {
-        assert(dest.length > pointer + Type.INT.getSize());
+        assert(dest.length > pointer + Type.INTEGER.getSize());
         dest[pointer++] = (byte) ((value >> 24) & 0xff);
         dest[pointer++] = (byte) ((value >> 16) & 0xff);
         dest[pointer++] = (byte) ((value >> 8) & 0xff);
