@@ -9,8 +9,8 @@ public class Array {
     public byte[] name;
     public byte type;
     public int count;
-    public byte[] data;
 
+    public byte[] data;
     private short[] shortData;
     private char[] charData;
     private int[] intData;
@@ -31,6 +31,7 @@ public class Array {
         pointer = writeBytes(dest, pointer, nameLength);
         pointer = writeBytes(dest, pointer, name);
         pointer = writeBytes(dest, pointer, type);
+        pointer = writeBytes(dest, pointer, count);
 
         switch (type) {
             case 1:  // byte
@@ -40,7 +41,7 @@ public class Array {
                 pointer = writeBytes(dest, pointer, shortData);
                 break;
             case 3:  // char
-                pointer = writeBytes(dest, pointer, charData;
+                pointer = writeBytes(dest, pointer, charData);
                 break;
             case 4:  // integer
                 pointer = writeBytes(dest, pointer, intData);
@@ -58,8 +59,26 @@ public class Array {
                 pointer = writeBytes(dest, pointer, booleanData);
                 break;
         }
-        pointer = writeBytes(dest, pointer, data);
         return pointer;
+    }
+
+    public int getSize() {
+        return Type.BYTE.getSize() + Type.SHORT.getSize() + name.length +
+                Type.BYTE.getSize() + Type.INTEGER.getSize() + getDataSize();
+    }
+
+    private int getDataSize() {
+        switch (type) {
+            case 1: return data.length * Type.getSize(Type.BYTE.getValue());  // byte
+            case 2: return shortData.length * Type.getSize(Type.SHORT.getValue());  // short
+            case 3: return charData.length * Type.getSize(Type.CHAR.getValue());  // char
+            case 4: return intData.length * Type.getSize(Type.INTEGER.getValue());  // integer
+            case 5: return longData.length * Type.getSize(Type.LONG.getValue());  // long
+            case 6: return floatData.length * Type.getSize(Type.FLOAT.getValue());  // float
+            case 7: return doubleData.length * Type.getSize(Type.DOUBLE.getValue());  // double
+            case 8: return booleanData.length * Type.getSize(Type.BOOLEAN.getValue());  // boolean
+        }
+        return 0;
     }
 
     public static Array Byte(String name, byte[] data) {

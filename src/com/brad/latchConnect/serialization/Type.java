@@ -25,7 +25,7 @@ public enum Type {
             case BYTE:      return 1;
             case SHORT:     return 2;
             case CHAR:      return 2;
-            case INTEGER:       return 4;
+            case INTEGER:   return 4;
             case LONG:      return 8;
             case FLOAT:     return 4;
             case DOUBLE:    return 8;

@@ -1,7 +1,10 @@
 package test;
 
 
+import com.brad.latchConnect.serialization.Array;
 import com.brad.latchConnect.serialization.Field;
+
+import java.util.Random;
 
 public class Main {
 
@@ -37,12 +40,16 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        int[] data = new int[50000];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = new Random().nextInt();
+        }
 
-        Field field = Field.Long("Test", 10);
+        Array array = Array.Integer("Test", data);
 
-        byte[] data = new byte[field.getSize()];
-        field.getBytes(data, 0);
-        printBytes(data);
+        byte[] stream = new byte[array.getSize()];
+        array.getBytes(stream, 0);
+        printBytes(stream);
 
     }
 
