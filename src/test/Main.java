@@ -1,9 +1,13 @@
 package test;
 
 
-import com.brad.latchConnect.serialization.Array;
-import com.brad.latchConnect.serialization.Field;
+import com.brad.latchConnect.serialization.LCArray;
+import com.brad.latchConnect.serialization.LCField;
+import com.brad.latchConnect.serialization.LCObject;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 public class Main {
@@ -39,17 +43,32 @@ public class Main {
         System.out.println();
     }
 
+    public static void saveToFile(String path, byte[] data) {
+        try {
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
+            stream.write(data);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         int[] data = new int[50000];
         for (int i = 0; i < data.length; i++) {
             data[i] = new Random().nextInt();
         }
 
-        Array array = Array.Integer("Test", data);
+        LCArray array = LCArray.Integer("RandomNumbers", data);
+        LCField field = LCField.Integer("Integer", 8);
 
-        byte[] stream = new byte[array.getSize()];
-        array.getBytes(stream, 0);
-        printBytes(stream);
+        LCObject object = new LCObject("Entity");
+        object.addArray(array);
+        object.addField(field);
+
+        byte[] stream = new byte[object.getSize()];
+        object.setBytes(stream, 0);
+        saveToFile("test.lcd",  stream);
 
     }
 

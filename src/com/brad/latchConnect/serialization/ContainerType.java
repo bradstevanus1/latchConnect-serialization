@@ -5,7 +5,8 @@ public enum ContainerType {
     UNKNOWN ((byte) 0),
     FIELD   ((byte) 1),
     ARRAY   ((byte) 2),
-    OBJECT  ((byte) 3);
+    OBJECT  ((byte) 3),
+    DATABASE((byte) 4);
 
     private byte value;
 

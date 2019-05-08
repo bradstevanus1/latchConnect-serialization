@@ -1,12 +1,15 @@
 package com.brad.latchConnect.serialization;
 
+
 import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 
-public class Array {
+public class LCArray {
 
     public static final byte CONTAINER_TYPE = ContainerType.ARRAY.getValue();
     public short nameLength;
     public byte[] name;
+    private int size = Type.BYTE.getSize() + Type.SHORT.getSize() +
+                        Type.INTEGER.getSize() + Type.BYTE.getSize() + Type.INTEGER.getSize();
     public byte type;
     public int count;
 
@@ -19,14 +22,27 @@ public class Array {
     private double[] doubleData;
     private boolean[] booleanData;
 
+    private LCArray() {}
+
+    @SuppressWarnings("Duplicates")
     public void setName(String name) {
         assert(name.length() < Short.MAX_VALUE);
+
+        if (this.name != null) {
+            size -= this.name.length;
+        }
+
         nameLength = (short) name.length();
         this.name = name.getBytes();
+        size += nameLength;
+    }
+
+    private void updateSize() {
+        size += getDataSize();
     }
 
     @SuppressWarnings("Duplicates")
-    public int getBytes(byte[] dest, int pointer) {
+    public int setBytes(byte[] dest, int pointer) {
         pointer = writeBytes(dest, pointer, CONTAINER_TYPE);
         pointer = writeBytes(dest, pointer, nameLength);
         pointer = writeBytes(dest, pointer, name);
@@ -63,8 +79,7 @@ public class Array {
     }
 
     public int getSize() {
-        return Type.BYTE.getSize() + Type.SHORT.getSize() + name.length +
-                Type.BYTE.getSize() + Type.INTEGER.getSize() + getDataSize();
+        return size;
     }
 
     private int getDataSize() {
@@ -81,75 +96,83 @@ public class Array {
         return 0;
     }
 
-    public static Array Byte(String name, byte[] data) {
-        Array array = new Array();
+    public static LCArray Byte(String name, byte[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.BYTE.getValue();
         array.count = data.length;
         array.data = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Short(String name, short[] data) {
-        Array array = new Array();
+    public static LCArray Short(String name, short[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.SHORT.getValue();
         array.count = data.length;
         array.shortData = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Char(String name, char[] data) {
-        Array array = new Array();
+    public static LCArray Char(String name, char[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.CHAR.getValue();
         array.count = data.length;
         array.charData = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Integer(String name, int[] data) {
-        Array array = new Array();
+    public static LCArray Integer(String name, int[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.INTEGER.getValue();
         array.count = data.length;
         array.intData = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Long(String name, long[] data) {
-        Array array = new Array();
+    public static LCArray Long(String name, long[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.LONG.getValue();
         array.count = data.length;
         array.longData = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Float(String name, float[] data) {
-        Array array = new Array();
+    public static LCArray Float(String name, float[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.FLOAT.getValue();
         array.count = data.length;
         array.floatData = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Double(String name, double[] data) {
-        Array array = new Array();
+    public static LCArray Double(String name, double[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.DOUBLE.getValue();
         array.count = data.length;
         array.doubleData = data;
+        array.updateSize();
         return array;
     }
 
-    public static Array Boolean(String name, boolean[] data) {
-        Array array = new Array();
+    public static LCArray Boolean(String name, boolean[] data) {
+        LCArray array = new LCArray();
         array.setName(name);
         array.type = Type.BOOLEAN.getValue();
         array.count = data.length;
         array.booleanData = data;
+        array.updateSize();
         return array;
     }
 

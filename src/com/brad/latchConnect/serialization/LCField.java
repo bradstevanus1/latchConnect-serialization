@@ -1,14 +1,14 @@
 package com.brad.latchConnect.serialization;
 
-import static com.brad.latchConnect.serialization.SerializationWriter.*;
 
+import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 
 /**
  * The stream of bytes that are contained within
  * this class are the actual bytes that get
  * serialized for a field of an object.
  */
-public class Field {
+public class LCField {
 
     public static final byte CONTAINER_TYPE = ContainerType.FIELD.getValue();
     public short nameLength;
@@ -16,7 +16,7 @@ public class Field {
     public byte type;
     public byte[] data;
 
-    private Field() {}
+    private LCField() {}
 
     public void setName(String name) {
         assert(name.length() < Short.MAX_VALUE);
@@ -24,7 +24,8 @@ public class Field {
         this.name = name.getBytes();
     }
 
-    public int getBytes(byte[] dest, int pointer) {
+    @SuppressWarnings("Duplicates")
+    public int setBytes(byte[] dest, int pointer) {
         pointer = writeBytes(dest, pointer, CONTAINER_TYPE);
         pointer = writeBytes(dest, pointer, nameLength);
         pointer = writeBytes(dest, pointer, name);
@@ -39,8 +40,8 @@ public class Field {
     }
 
 
-    public static Field Byte(String name, byte value) {
-        Field field = new Field();
+    public static LCField Byte(String name, byte value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.BYTE.getValue();
         field.data = new byte[Type.BYTE.getSize()];
@@ -48,8 +49,8 @@ public class Field {
         return field;
     }
 
-    public static Field Short(String name, short value) {
-        Field field = new Field();
+    public static LCField Short(String name, short value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.SHORT.getValue();
         field.data = new byte[Type.SHORT.getSize()];
@@ -57,8 +58,8 @@ public class Field {
         return field;
     }
 
-    public static Field Char(String name, char value) {
-        Field field = new Field();
+    public static LCField Char(String name, char value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.CHAR.getValue();
         field.data = new byte[Type.CHAR.getSize()];
@@ -66,8 +67,8 @@ public class Field {
         return field;
     }
 
-    public static Field Integer(String name, int value) {
-        Field field = new Field();
+    public static LCField Integer(String name, int value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.INTEGER.getValue();
         field.data = new byte[Type.INTEGER.getSize()];
@@ -75,8 +76,8 @@ public class Field {
         return field;
     }
 
-    public static Field Long(String name, long value) {
-        Field field = new Field();
+    public static LCField Long(String name, long value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.LONG.getValue();
         field.data = new byte[Type.LONG.getSize()];
@@ -84,8 +85,8 @@ public class Field {
         return field;
     }
 
-    public static Field Float(String name, float value) {
-        Field field = new Field();
+    public static LCField Float(String name, float value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.FLOAT.getValue();
         field.data = new byte[Type.FLOAT.getSize()];
@@ -93,8 +94,8 @@ public class Field {
         return field;
     }
 
-    public static Field Double(String name, double value) {
-        Field field = new Field();
+    public static LCField Double(String name, double value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.DOUBLE.getValue();
         field.data = new byte[Type.DOUBLE.getSize()];
@@ -102,8 +103,8 @@ public class Field {
         return field;
     }
 
-    public static Field Boolean(String name, boolean value) {
-        Field field = new Field();
+    public static LCField Boolean(String name, boolean value) {
+        LCField field = new LCField();
         field.setName(name);
         field.type = Type.BOOLEAN.getValue();
         field.data = new byte[Type.BOOLEAN.getSize()];
