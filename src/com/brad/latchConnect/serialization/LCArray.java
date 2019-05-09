@@ -9,7 +9,7 @@ public class LCArray {
     private short nameLength;
     private byte[] name;
     private int size = Type.BYTE.getSize() + Type.SHORT.getSize() +
-                        Type.INTEGER.getSize()  + Type.INTEGER.getSize() + Type.BYTE.getSize();
+                        Type.INTEGER.getSize() + Type.BYTE.getSize() + Type.INTEGER.getSize();
     private byte type;
     private int count;
 

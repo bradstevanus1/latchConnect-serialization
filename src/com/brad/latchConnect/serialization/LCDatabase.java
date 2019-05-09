@@ -1,9 +1,7 @@
 package com.brad.latchConnect.serialization;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +19,7 @@ public class LCDatabase {
     private int size = HEADER.length + Type.BYTE.getSize() + Type.SHORT.getSize() +
                         Type.INTEGER.getSize() + Type.SHORT.getSize();
     private short objectCount;
-    private List<LCObject> objects = new ArrayList<>();
+    public List<LCObject> objects = new ArrayList<>();
 
     private LCDatabase() {}
 
@@ -72,7 +70,8 @@ public class LCDatabase {
         return pointer;
     }
 
-    public static LCDatabase deserialize(byte[] data) {
+    @SuppressWarnings("Duplicates")
+    public static LCDatabase Deserialize(byte[] data) {
         int pointer = 0;
 
         String header = readString(data, pointer, HEADER.length);
@@ -96,11 +95,16 @@ public class LCDatabase {
         result.objectCount = readShort(data, pointer);
         pointer += Type.SHORT.getSize();
 
+        for (int i = 0; i < result.objectCount; i++) {
+            LCObject object = LCObject.Deserialize(data, pointer);
+            result.objects.add(object);
+            pointer += object.getSize();
+        }
 
         return result;
     }
 
-    public static LCDatabase deserializeFromFile(String path) {
+    public static LCDatabase DeserializeFromFile(String path) {
         byte[] buffer = null;
         try {
             BufferedInputStream stream = new BufferedInputStream(new FileInputStream(path));
@@ -110,7 +114,7 @@ public class LCDatabase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return deserialize(buffer);
+        return Deserialize(buffer);
     }
 
 }

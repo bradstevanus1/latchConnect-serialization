@@ -3,6 +3,7 @@ package com.brad.latchConnect.serialization;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.brad.latchConnect.serialization.SerializationReader.*;
 import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 
 public class LCObject {
@@ -22,6 +23,13 @@ public class LCObject {
     private short arrayCount;
     private List<LCArray> arrays = new ArrayList<>();
 
+    /**
+     * Equal to the amount of bytes that are taken up by the CONTAINER_TYPE, nameLength,
+     * and size, which is normally 7 bytes. Does not include the name length.
+     */
+    private static final int sizeOffset = Type.BYTE.getSize() + Type.SHORT.getSize() + Type.INTEGER.getSize();
+
+    private LCObject() {}
 
     public LCObject(String name) {
         setName(name);
@@ -38,6 +46,10 @@ public class LCObject {
         nameLength = (short) name.length();
         this.name = name.getBytes();
         size += nameLength;
+    }
+
+    public String getName() {
+        return new String(name, 0, nameLength);
     }
 
     public void addField(LCField field) {
@@ -84,5 +96,53 @@ public class LCObject {
             pointer = array.setBytes(dest, pointer);
         }
         return pointer;
+    }
+
+    /**
+     * Deserializes an LCObject type, where the pointer must
+     * point to the first byte in the object, being the container type.
+     * @param data      A serialized byte stream that contains objects
+     * @param pointer   A pointer to the first byte in a LCObject
+     * @return          An LCObject populated with usable data that was
+     *                  read from the byte stream
+     */
+    @SuppressWarnings("Duplicates")
+    public static LCObject Deserialize(byte[] data, int pointer) {
+        byte containerType = readByte(data, pointer);
+        assert(containerType == CONTAINER_TYPE);
+        pointer++;
+
+        LCObject result = new LCObject();
+
+        result.nameLength = readShort(data, pointer);
+        pointer += Type.SHORT.getSize();
+        result.name = readString(data, pointer, result.nameLength).getBytes();
+        pointer += result.nameLength;
+
+        result.size = readInt(data, pointer);
+        pointer += Type.INTEGER.getSize();
+
+        pointer += result.size - sizeOffset - result.nameLength;
+        if (true)
+            return result;
+
+        result.fieldCount = readShort(data, pointer);
+        pointer += Type.SHORT.getSize();
+
+        // TODO: Deserialize fields here
+
+        result.stringCount = readShort(data, pointer);
+        pointer += Type.SHORT.getSize();
+
+        // TODO: Deserialize strings here
+
+        result.arrayCount = readShort(data, pointer);
+        pointer += Type.SHORT.getSize();
+
+        // TODO: Deserialize arrays here
+
+
+
+        return result;
     }
 }

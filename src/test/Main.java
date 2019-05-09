@@ -77,6 +77,12 @@ public class Main {
         object.addString(LCString.Create("exampleString", "Testing our LCString class!"));
 
         database.addObject(object);
+        database.addObject(new LCObject("Brad"));
+        database.addObject(new LCObject("Brad1"));
+        LCObject c = new LCObject("Brad2");
+        c.addField(LCField.Boolean("isTrue", false));
+        database.addObject(c);
+        database.addObject(new LCObject("Brad3"));
 
         byte[] stream = new byte[database.getSize()];
         database.setBytes(stream, 0);
@@ -84,11 +90,15 @@ public class Main {
     }
 
     public static void deserializationTest() {
-        LCDatabase database = LCDatabase.deserializeFromFile("test.lcdb");
-        System.out.println(database.getName());
+        LCDatabase database = LCDatabase.DeserializeFromFile("test.lcdb");
+        System.out.println("Database: " + database.getName());
+        for (int i = 0; i < database.objects.size(); i++) {
+            System.out.println("\t" + database.objects.get(i).getName());
+        }
     }
 
     public static void main(String[] args) {
+        serializationTest();
         deserializationTest();
     }
 
