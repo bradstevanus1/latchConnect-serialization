@@ -6,7 +6,7 @@ public enum Type {
     BYTE    ((byte) 1),
     SHORT   ((byte) 2),
     CHAR    ((byte) 3),
-    INTEGER((byte) 4),
+    INTEGER ((byte) 4),
     LONG    ((byte) 5),
     FLOAT   ((byte) 6),
     DOUBLE  ((byte) 7),

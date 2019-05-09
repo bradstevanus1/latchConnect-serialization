@@ -10,22 +10,22 @@ import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes
  */
 public class LCField {
 
-    public static final byte CONTAINER_TYPE = ContainerType.FIELD.getValue();
-    public short nameLength;
-    public byte[] name;
-    public byte type;
-    public byte[] data;
+    private static final byte CONTAINER_TYPE = ContainerType.FIELD.getValue();
+    private short nameLength;
+    private byte[] name;
+    private byte type;
+    private byte[] data;
 
     private LCField() {}
 
-    public void setName(String name) {
+    private void setName(String name) {
         assert(name.length() < Short.MAX_VALUE);
         nameLength = (short) name.length();
         this.name = name.getBytes();
     }
 
     @SuppressWarnings("Duplicates")
-    public int setBytes(byte[] dest, int pointer) {
+    int setBytes(byte[] dest, int pointer) {
         pointer = writeBytes(dest, pointer, CONTAINER_TYPE);
         pointer = writeBytes(dest, pointer, nameLength);
         pointer = writeBytes(dest, pointer, name);
@@ -34,7 +34,7 @@ public class LCField {
         return pointer;
     }
 
-    public int getSize() {
+    int getSize() {
         assert(data.length == Type.getSize(type));
         return Type.BYTE.getSize() + Type.SHORT.getSize() + name.length + Type.BYTE.getSize() + data.length;
     }

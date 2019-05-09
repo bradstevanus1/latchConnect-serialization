@@ -1,5 +1,7 @@
 package com.brad.latchConnect.serialization;
 
+import java.nio.ByteBuffer;
+
 /**
  * Contains static methods for reading common data types from
  * a byte array.
@@ -11,7 +13,7 @@ public class SerializationReader {
      */
     private SerializationReader() {}
 
-    public static byte readByte(byte[] src, int pointer) {
+    static byte readByte(byte[] src, int pointer) {
         return src[pointer];
     }
 
@@ -33,7 +35,8 @@ public class SerializationReader {
 
 
     public static int readInt(byte[] src, int pointer) {
-        return ((src[pointer] << 24) | (src[pointer + 1] << 16) | (src[pointer + 2] << 8) | src[pointer + 3]);
+        return ByteBuffer.wrap(src, pointer, 4).getInt();
+        //return ((src[pointer] << 24) | (src[pointer + 1] << 16) | (src[pointer + 2] << 8) | src[pointer + 3]);
     }
 
     public static long readLong(byte[] src, int pointer) {
@@ -52,5 +55,9 @@ public class SerializationReader {
     public static boolean readBoolean(byte[] src, int pointer) {
         assert(src[pointer] == 0 || src[pointer] == 1);
         return src[pointer] != 0;
+    }
+
+    public static String readString(byte[] src, int pointer, int length) {
+        return new String(src, pointer, length);
     }
 }

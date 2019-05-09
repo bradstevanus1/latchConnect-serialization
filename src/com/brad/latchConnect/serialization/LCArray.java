@@ -5,15 +5,15 @@ import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes
 
 public class LCArray {
 
-    public static final byte CONTAINER_TYPE = ContainerType.ARRAY.getValue();
-    public short nameLength;
-    public byte[] name;
+    private static final byte CONTAINER_TYPE = ContainerType.ARRAY.getValue();
+    private short nameLength;
+    private byte[] name;
     private int size = Type.BYTE.getSize() + Type.SHORT.getSize() +
-                        Type.INTEGER.getSize() + Type.BYTE.getSize() + Type.INTEGER.getSize();
-    public byte type;
-    public int count;
+                        Type.INTEGER.getSize()  + Type.INTEGER.getSize() + Type.BYTE.getSize();
+    private byte type;
+    private int count;
 
-    public byte[] data;
+    private byte[] data;
     private short[] shortData;
     private char[] charData;
     private int[] intData;
@@ -46,6 +46,7 @@ public class LCArray {
         pointer = writeBytes(dest, pointer, CONTAINER_TYPE);
         pointer = writeBytes(dest, pointer, nameLength);
         pointer = writeBytes(dest, pointer, name);
+        pointer = writeBytes(dest, pointer, size);
         pointer = writeBytes(dest, pointer, type);
         pointer = writeBytes(dest, pointer, count);
 

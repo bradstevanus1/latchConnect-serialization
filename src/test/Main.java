@@ -2,8 +2,10 @@ package test;
 
 
 import com.brad.latchConnect.serialization.LCArray;
+import com.brad.latchConnect.serialization.LCDatabase;
 import com.brad.latchConnect.serialization.LCField;
 import com.brad.latchConnect.serialization.LCObject;
+import com.brad.latchConnect.serialization.LCString;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -53,23 +55,41 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
+    public static void serializationTest() {
         int[] data = new int[50000];
         for (int i = 0; i < data.length; i++) {
             data[i] = new Random().nextInt();
         }
 
+        LCDatabase database = new LCDatabase("Database");
+
         LCArray array = LCArray.Integer("RandomNumbers", data);
         LCField field = LCField.Integer("Integer", 8);
+        LCField positionx = LCField.Short("xpos", (short) 2);
+        LCField positiony = LCField.Short("ypos", (short) 42);
 
         LCObject object = new LCObject("Entity");
         object.addArray(array);
+        object.addArray(LCArray.Char("stringVar", "Hello World!".toCharArray()));
         object.addField(field);
+        object.addField(positionx);
+        object.addField(positiony);
+        object.addString(LCString.Create("exampleString", "Testing our LCString class!"));
 
-        byte[] stream = new byte[object.getSize()];
-        object.setBytes(stream, 0);
-        saveToFile("test.lcd",  stream);
+        database.addObject(object);
 
+        byte[] stream = new byte[database.getSize()];
+        database.setBytes(stream, 0);
+        saveToFile("test.lcdb",  stream);
+    }
+
+    public static void deserializationTest() {
+        LCDatabase database = LCDatabase.deserializeFromFile("test.lcdb");
+        System.out.println(database.getName());
+    }
+
+    public static void main(String[] args) {
+        deserializationTest();
     }
 
 }
