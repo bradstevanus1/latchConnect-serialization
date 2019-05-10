@@ -1,15 +1,9 @@
-package test;
+import com.brad.latchConnect.serialization.data.LCArray;
+import com.brad.latchConnect.serialization.data.LCDatabase;
+import com.brad.latchConnect.serialization.data.LCField;
+import com.brad.latchConnect.serialization.data.LCObject;
+import com.brad.latchConnect.serialization.data.LCString;
 
-
-import com.brad.latchConnect.serialization.LCArray;
-import com.brad.latchConnect.serialization.LCDatabase;
-import com.brad.latchConnect.serialization.LCField;
-import com.brad.latchConnect.serialization.LCObject;
-import com.brad.latchConnect.serialization.LCString;
-
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
 public class Main {
@@ -45,16 +39,6 @@ public class Main {
         System.out.println();
     }
 
-    public static void saveToFile(String path, byte[] data) {
-        try {
-            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
-            stream.write(data);
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void serializationTest() {
         int[] data = new int[50000];
         for (int i = 0; i < data.length; i++) {
@@ -84,22 +68,36 @@ public class Main {
         database.addObject(c);
         database.addObject(new LCObject("Brad3"));
 
-        byte[] stream = new byte[database.getSize()];
-        database.setBytes(stream, 0);
-        saveToFile("test.lcdb",  stream);
+        database.serializeToFile("test.lcdb");
+
     }
 
     public static void deserializationTest() {
         LCDatabase database = LCDatabase.DeserializeFromFile("test.lcdb");
         System.out.println("Database: " + database.getName());
-        for (int i = 0; i < database.objects.size(); i++) {
-            System.out.println("\t" + database.objects.get(i).getName());
+        for (LCObject object : database.objects) {
+            System.out.println("\t" + object.getName());
+            for (LCField field : object.fields) {
+                System.out.println("\t\t" + field.getName());
+            }
+            System.out.println();
+            for (LCString string : object.strings) {
+                System.out.println("\t\t" + string.getName() + " = " + string.getString());
+            }
+            System.out.println();
+            for (LCArray array : object.arrays) {
+                System.out.println("\t\t" + array.getName());
+            }
+            System.out.println();
         }
+        System.out.println();
     }
 
     public static void main(String[] args) {
-        serializationTest();
-        deserializationTest();
+        //serializationTest();
+        //deserializationTest();
+        Sandbox sandbox = new Sandbox();
+        sandbox.play();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.brad.latchConnect.serialization;
+package com.brad.latchConnect.serialization.type;
 
 public enum Type {
 
@@ -11,7 +11,6 @@ public enum Type {
     FLOAT   ((byte) 6),
     DOUBLE  ((byte) 7),
     BOOLEAN ((byte) 8);
-
 
     private byte value;
 

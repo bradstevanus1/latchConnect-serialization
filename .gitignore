@@ -2,4 +2,5 @@
 .idea
 latch-serialization.iml
 out/*
+out
 *.lcd

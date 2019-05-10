@@ -1,7 +1,12 @@
-package com.brad.latchConnect.serialization;
+package com.brad.latchConnect.serialization.data;
+
+import com.brad.latchConnect.serialization.type.ContainerType;
+import com.brad.latchConnect.serialization.type.Type;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,14 +15,12 @@ import java.util.List;
 import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 import static com.brad.latchConnect.serialization.SerializationReader.*;
 
-public class LCDatabase {
+public class LCDatabase extends LCData {
 
     private static final byte[] HEADER = "LCDB".getBytes();
+    private static final short VERSION = 0x0100;
     private static final byte CONTAINER_TYPE = ContainerType.DATABASE.getValue();
-    private short nameLength;
-    private byte[] name;
-    private int size = HEADER.length + Type.BYTE.getSize() + Type.SHORT.getSize() +
-                        Type.INTEGER.getSize() + Type.SHORT.getSize();
+
     private short objectCount;
     public List<LCObject> objects = new ArrayList<>();
 
@@ -25,29 +28,22 @@ public class LCDatabase {
 
     public LCDatabase(String name) {
         setName(name);
-    }
-
-    @SuppressWarnings("Duplicates")
-    public void setName(String name) {
-        assert(name.length() < Short.MAX_VALUE);
-
-        if (this.name != null) {
-            size -= this.name.length;
-        }
-
-        nameLength = (short) name.length();
-        this.name = name.getBytes();
-        size += nameLength;
-    }
-
-    public String getName() {
-        return new String(name, 0, nameLength);
+        size += HEADER.length + Type.SHORT.getSize() + Type.BYTE.getSize() + Type.SHORT.getSize();
     }
 
     public void addObject(LCObject object) {
         objects.add(object);
         size += object.getSize();
         objectCount = (short) objects.size();
+    }
+
+    public LCObject findObject(String name) {
+        for (LCObject object : objects) {
+            if (object.getName().equals(name)) {
+                return object;
+            }
+        }
+        return null;
     }
 
     public int getSize() {
@@ -57,6 +53,7 @@ public class LCDatabase {
     @SuppressWarnings("Duplicates")
     public int setBytes(byte[] dest, int pointer) {
         pointer = writeBytes(dest, pointer, HEADER);
+        pointer = writeBytes(dest, pointer, VERSION);
         pointer = writeBytes(dest, pointer, CONTAINER_TYPE);
         pointer = writeBytes(dest, pointer, nameLength);
         pointer = writeBytes(dest, pointer, name);
@@ -70,6 +67,13 @@ public class LCDatabase {
         return pointer;
     }
 
+    /**
+     * Deserializes the data in the given byte stream
+     * based on the LCDB format.
+     * @param data  Byte stream
+     * @return      A database object filled with properly
+     *              deserialized fields and objects.
+     */
     @SuppressWarnings("Duplicates")
     public static LCDatabase Deserialize(byte[] data) {
         int pointer = 0;
@@ -78,14 +82,22 @@ public class LCDatabase {
         assert(Arrays.equals(header.getBytes(), HEADER));
         pointer += HEADER.length;
 
+        short version = readShort(data, pointer);
+        if (version != VERSION) {
+            System.err.println("Invalid LCDB version!");
+            return null;
+        }
+        pointer += Type.SHORT.getSize();
+
         byte containerType = readByte(data, pointer);
         assert(containerType == CONTAINER_TYPE);
-        pointer++;
+        pointer += Type.BYTE.getSize();
 
         LCDatabase result = new LCDatabase();
 
         result.nameLength = readShort(data, pointer);
         pointer += Type.SHORT.getSize();
+
         result.name = readString(data, pointer, result.nameLength).getBytes();
         pointer += result.nameLength;
 
@@ -104,6 +116,13 @@ public class LCDatabase {
         return result;
     }
 
+    /**
+     * Deserializes the data in the given byte stream
+     * (by passing a path to file that contains said
+     * byte stream) based on the LCDB format.
+     * @param path
+     * @return
+     */
     public static LCDatabase DeserializeFromFile(String path) {
         byte[] buffer = null;
         try {
@@ -116,5 +135,34 @@ public class LCDatabase {
         }
         return Deserialize(buffer);
     }
+
+    /**
+     * Serializes all data in the LCDatabase object.
+     * @return  Serialized byte stream
+     */
+    public byte[] serialize() {
+        byte[] data = new byte[getSize()];
+        setBytes(data, 0);
+        return data;
+    }
+
+    /**
+     * Serializes all data in the LCDatabase object
+     * and writes the byte stream to the specified file.
+     * @param path  File that the serialized byte stream
+     *              is sent to
+     */
+    public void serializeToFile(String path) {
+        byte[] data = serialize();
+        try {
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
+            stream.write(data);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 }

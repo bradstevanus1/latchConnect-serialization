@@ -1,6 +1,10 @@
-package com.brad.latchConnect.serialization;
+package com.brad.latchConnect.serialization.data;
 
 
+import com.brad.latchConnect.serialization.type.ContainerType;
+import com.brad.latchConnect.serialization.type.Type;
+
+import static com.brad.latchConnect.serialization.SerializationReader.*;
 import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 
 /**
@@ -8,20 +12,46 @@ import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes
  * this class are the actual bytes that get
  * serialized for a field of an object.
  */
-public class LCField {
+public class LCField extends LCData {
 
     private static final byte CONTAINER_TYPE = ContainerType.FIELD.getValue();
-    private short nameLength;
-    private byte[] name;
     private byte type;
     private byte[] data;
 
-    private LCField() {}
+    private LCField() {
+        size += Type.BYTE.getSize() + Type.BYTE.getSize();
+    }
 
-    private void setName(String name) {
-        assert(name.length() < Short.MAX_VALUE);
-        nameLength = (short) name.length();
-        this.name = name.getBytes();
+    public int getByte() {
+        return readByte(data, 0);
+    }
+
+    public short getShort() {
+        return readShort(data, 0);
+    }
+
+    public char getChar() {
+        return readChar(data, 0);
+    }
+
+    public int getInt() {
+        return readInt(data, 0);
+    }
+
+    public long getLong() {
+        return readLong(data, 0);
+    }
+
+    public float getFloat() {
+        return readFloat(data, 0);
+    }
+
+    public double getDouble() {
+        return readDouble(data, 0);
+    }
+
+    public boolean getBoolean() {
+        return readBoolean(data, 0);
     }
 
     @SuppressWarnings("Duplicates")
@@ -34,7 +64,7 @@ public class LCField {
         return pointer;
     }
 
-    int getSize() {
+    public int getSize() {
         assert(data.length == Type.getSize(type));
         return Type.BYTE.getSize() + Type.SHORT.getSize() + name.length + Type.BYTE.getSize() + data.length;
     }
@@ -110,6 +140,30 @@ public class LCField {
         field.data = new byte[Type.BOOLEAN.getSize()];
         writeBytes(field.data, 0, value);
         return field;
+    }
+
+    @SuppressWarnings("Duplicates")
+    public static LCField Deserialize(byte[] data, int pointer) {
+        byte containerType = readByte(data, pointer);
+        assert(containerType == CONTAINER_TYPE);
+        pointer += Type.BYTE.getSize();
+
+        LCField result = new LCField();
+
+        result.nameLength = readShort(data, pointer);
+        pointer += Type.SHORT.getSize();
+
+        result.name = readString(data, pointer, result.nameLength).getBytes();
+        pointer += result.nameLength;
+
+        result.type = readByte(data, pointer);
+        pointer += Type.BYTE.getSize();
+
+        result.data = new byte[Type.getSize(result.type)];
+        readBytes(data, pointer, result.data);
+        pointer += Type.getSize(result.type);
+
+        return result;
     }
 
 }

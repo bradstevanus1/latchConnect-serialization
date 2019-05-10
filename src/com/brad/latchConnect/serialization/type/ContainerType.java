@@ -1,4 +1,4 @@
-package com.brad.latchConnect.serialization;
+package com.brad.latchConnect.serialization.type;
 
 public enum ContainerType {
     

@@ -1,4 +1,7 @@
-package com.brad.latchConnect.serialization;
+package com.brad.latchConnect.serialization.data;
+
+import com.brad.latchConnect.serialization.type.ContainerType;
+import com.brad.latchConnect.serialization.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,50 +9,24 @@ import java.util.List;
 import static com.brad.latchConnect.serialization.SerializationReader.*;
 import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 
-public class LCObject {
+public class LCObject extends LCData {
 
     private static final byte CONTAINER_TYPE = ContainerType.OBJECT.getValue();
-    private short nameLength;
-    private byte[] name;
-    private int size = Type.BYTE.getSize() + Type.SHORT.getSize() + Type.INTEGER.getSize() +
-                        Type.SHORT.getSize() + Type.SHORT.getSize() + Type.SHORT.getSize();
 
     private short fieldCount;
-    private List<LCField> fields = new ArrayList<>();
+    public List<LCField> fields = new ArrayList<>();
 
     private short stringCount;
-    private List<LCString> strings = new ArrayList<>();
+    public List<LCString> strings = new ArrayList<>();
 
     private short arrayCount;
-    private List<LCArray> arrays = new ArrayList<>();
-
-    /**
-     * Equal to the amount of bytes that are taken up by the CONTAINER_TYPE, nameLength,
-     * and size, which is normally 7 bytes. Does not include the name length.
-     */
-    private static final int sizeOffset = Type.BYTE.getSize() + Type.SHORT.getSize() + Type.INTEGER.getSize();
+    public List<LCArray> arrays = new ArrayList<>();
 
     private LCObject() {}
 
     public LCObject(String name) {
         setName(name);
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void setName(String name) {
-        assert(name.length() < Short.MAX_VALUE);
-
-        if (this.name != null) {
-            size -= this.name.length;
-        }
-
-        nameLength = (short) name.length();
-        this.name = name.getBytes();
-        size += nameLength;
-    }
-
-    public String getName() {
-        return new String(name, 0, nameLength);
+        size += Type.BYTE.getSize() + Type.SHORT.getSize() + Type.SHORT.getSize() + Type.SHORT.getSize();
     }
 
     public void addField(LCField field) {
@@ -70,7 +47,34 @@ public class LCObject {
         arrayCount = (short) arrays.size();
     }
 
-    int getSize() {
+    public LCField findField(String name) {
+        for (LCField field : fields) {
+            if (field.getName().equals(name)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    public LCString findString(String name) {
+        for (LCString string : strings) {
+            if (string.getName().equals(name)) {
+                return string;
+            }
+        }
+        return null;
+    }
+
+    public LCArray findArray(String name) {
+        for (LCArray array : arrays) {
+            if (array.getName().equals(name)) {
+                return array;
+            }
+        }
+        return null;
+    }
+
+    public int getSize() {
         return size;
     }
 
@@ -110,38 +114,47 @@ public class LCObject {
     public static LCObject Deserialize(byte[] data, int pointer) {
         byte containerType = readByte(data, pointer);
         assert(containerType == CONTAINER_TYPE);
-        pointer++;
+        pointer += Type.BYTE.getSize();
 
         LCObject result = new LCObject();
 
         result.nameLength = readShort(data, pointer);
         pointer += Type.SHORT.getSize();
+
         result.name = readString(data, pointer, result.nameLength).getBytes();
         pointer += result.nameLength;
 
         result.size = readInt(data, pointer);
         pointer += Type.INTEGER.getSize();
 
-        pointer += result.size - sizeOffset - result.nameLength;
-        if (true)
-            return result;
+        // Early-out: pointer += result.size - sizeOffset - result.nameLength;
 
         result.fieldCount = readShort(data, pointer);
         pointer += Type.SHORT.getSize();
 
-        // TODO: Deserialize fields here
+        for (int i = 0; i < result.fieldCount; i++) {
+            LCField field = LCField.Deserialize(data, pointer);
+            result.fields.add(field);
+            pointer += field.getSize();
+        }
 
         result.stringCount = readShort(data, pointer);
         pointer += Type.SHORT.getSize();
 
-        // TODO: Deserialize strings here
+        for (int i = 0; i < result.stringCount; i++) {
+            LCString string = LCString.Deserialize(data, pointer);
+            result.strings.add(string);
+            pointer += string.getSize();
+        }
 
         result.arrayCount = readShort(data, pointer);
         pointer += Type.SHORT.getSize();
 
-        // TODO: Deserialize arrays here
-
-
+        for (int i = 0; i < result.arrayCount; i++) {
+            LCArray array = LCArray.Deserialize(data, pointer);
+            result.arrays.add(array);
+            pointer += array.getSize();
+        }
 
         return result;
     }

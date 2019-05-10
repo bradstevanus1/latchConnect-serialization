@@ -1,15 +1,15 @@
-package com.brad.latchConnect.serialization;
+package com.brad.latchConnect.serialization.data;
 
 
+import com.brad.latchConnect.serialization.type.ContainerType;
+import com.brad.latchConnect.serialization.type.Type;
+
+import static com.brad.latchConnect.serialization.SerializationReader.*;
 import static com.brad.latchConnect.serialization.SerializationWriter.writeBytes;
 
-public class LCArray {
+public class LCArray extends LCData {
 
     private static final byte CONTAINER_TYPE = ContainerType.ARRAY.getValue();
-    private short nameLength;
-    private byte[] name;
-    private int size = Type.BYTE.getSize() + Type.SHORT.getSize() +
-                        Type.INTEGER.getSize() + Type.BYTE.getSize() + Type.INTEGER.getSize();
     private byte type;
     private int count;
 
@@ -22,19 +22,8 @@ public class LCArray {
     private double[] doubleData;
     private boolean[] booleanData;
 
-    private LCArray() {}
-
-    @SuppressWarnings("Duplicates")
-    public void setName(String name) {
-        assert(name.length() < Short.MAX_VALUE);
-
-        if (this.name != null) {
-            size -= this.name.length;
-        }
-
-        nameLength = (short) name.length();
-        this.name = name.getBytes();
-        size += nameLength;
+    private LCArray() {
+        size += Type.BYTE.getSize() + Type.BYTE.getSize() + Type.INTEGER.getSize();
     }
 
     private void updateSize() {
@@ -175,6 +164,69 @@ public class LCArray {
         array.booleanData = data;
         array.updateSize();
         return array;
+    }
+
+    @SuppressWarnings("Duplicates")
+    public static LCArray Deserialize(byte[] data, int pointer) {
+        byte containerType = readByte(data, pointer);
+        assert(containerType == CONTAINER_TYPE);
+        pointer += Type.BYTE.getSize();
+
+        LCArray result = new LCArray();
+
+        result.nameLength = readShort(data, pointer);
+        pointer += Type.SHORT.getSize();
+
+        result.name = readString(data, pointer, result.nameLength).getBytes();
+        pointer += result.nameLength;
+
+        result.size = readInt(data, pointer);
+        pointer += Type.INTEGER.getSize();
+
+        result.type = readByte(data, pointer);
+        pointer += Type.BYTE.getSize();
+
+        result.count = readInt(data, pointer);
+        pointer += Type.INTEGER.getSize();
+
+        switch (result.type) {
+            case 1:  // byte
+                result.data = new byte[result.count];
+                readBytes(data, pointer, result.data);
+                break;
+            case 2:  // short
+                result.shortData = new short[result.count];
+                readShorts(data, pointer, result.shortData);
+                break;
+            case 3:  // char
+                result.charData = new char[result.count];
+                readChars(data, pointer, result.charData);
+                break;
+            case 4:  // integer
+                result.intData = new int[result.count];
+                readInts(data, pointer, result.intData);
+                break;
+            case 5:  // long
+                result.longData = new long[result.count];
+                readLongs(data, pointer, result.longData);
+                break;
+            case 6:  // float
+                result.floatData = new float[result.count];
+                readFloats(data, pointer, result.floatData);
+                break;
+            case 7:  // double
+                result.doubleData = new double[result.count];
+                readDoubles(data, pointer, result.doubleData);
+                break;
+            case 8:  // boolean
+                result.booleanData = new boolean[result.count];
+                readBooleans(data, pointer, result.booleanData);
+                break;
+        }
+
+        pointer += result.count * Type.getSize(result.type);
+
+        return result;
     }
 
 }

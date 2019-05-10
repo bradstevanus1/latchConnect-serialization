@@ -1,25 +1,17 @@
 package com.brad.latchConnect.serialization;
 
+import com.brad.latchConnect.serialization.type.Type;
+
 /**
  * Contains static methods for writing common data
  * types to a byte array.
  */
-public class SerializationWriter {
+public final class SerializationWriter {
 
     /**
      * Do not let anyone instantiate this class.
      */
     private SerializationWriter() {}
-
-    /**
-     * Static RC bytes that go in the header.
-     */
-    public static final byte[] HEADER = "LC".getBytes();
-
-    /**
-     * Version number of the SerializationWriter program.
-     */
-    public static final short VERSION = 0x0100;  // big endian
 
     public static int writeBytes(byte[] dest, int pointer, byte[] src) {
         assert(dest.length > pointer + src.length);
