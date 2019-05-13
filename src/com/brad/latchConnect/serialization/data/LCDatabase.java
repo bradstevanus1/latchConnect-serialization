@@ -131,7 +131,7 @@ public class LCDatabase extends LCData {
             stream.read(buffer);
             stream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
         }
         return Deserialize(buffer);
     }
