@@ -5,9 +5,14 @@ import com.brad.latchConnect.serialization.type.Type;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,13 +129,16 @@ public class LCDatabase extends LCData {
      * @return
      */
     public static LCDatabase DeserializeFromFile(String path) {
-        byte[] buffer = null;
+        byte[] buffer;
         try {
-            BufferedInputStream stream = new BufferedInputStream(new FileInputStream(path));
+            URI fileURI = LCDatabase.class.getResource(path).toURI();
+            File file = new File(fileURI);
+            BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
             buffer = new byte[stream.available()];
             stream.read(buffer);
             stream.close();
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
             return null;
         }
         return Deserialize(buffer);
@@ -155,10 +163,12 @@ public class LCDatabase extends LCData {
     public void serializeToFile(String path) {
         byte[] data = serialize();
         try {
-            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
+            URI fileURI = LCDatabase.class.getResource(path).toURI();
+            File file = new File(fileURI);
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(data);
             stream.close();
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
     }
